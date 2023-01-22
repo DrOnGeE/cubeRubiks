@@ -1,0 +1,304 @@
+# https://stackoverflow.com/questions/65698145/kivymd-tab-name-containing-icons-and-text
+# this import will prevent disappear tabs through some clicks on them)))
+#:import md_icons kivymd.icon_definitions.md_icons
+#:import fonts kivymd.font_definitions.fonts
+
+# https://github.com/tito/kivy-gettext-example
+# this import for multilingual support
+#:import tr __main__.tr
+
+# Menu item in the DrawerList list.
+<ItemDrawer>:
+    theme_text_color: "Custom"
+    on_release: self.parent.set_color_item(self)
+
+    IconLeftWidget:
+        id: icon
+        icon: root.icon
+        theme_text_color: "Custom"
+        text_color: root.text_color
+
+
+<ContentNavigationDrawer>:
+    orientation: "vertical"
+    padding: "8dp"
+    spacing: "8dp"
+
+    AnchorLayout:
+        anchor_x: "left"
+        size_hint_y: None
+        height: avatar.height
+
+        Image:
+            id: avatar
+            size_hint: None, None
+            size: "56dp", "56dp"
+            source: "data/logo/logo3-min.png"
+
+    MDLabel:
+        text: tr._('CubeSolver') #app.title
+        font_style: "Button"
+        size_hint_y: None
+        height: self.texture_size[1]
+
+    MDLabel:
+        text: tr._('author Chinovnikov Andrey') #app.by_who
+        font_style: "Caption"
+        size_hint_y: None
+        height: self.texture_size[1]
+
+
+
+    ScrollView:
+
+        DrawerList:
+            id: md_list
+
+
+
+Screen:
+
+    MDNavigationLayout:
+
+        ScreenManager:
+
+            Screen:
+
+                BoxLayout:
+                    orientation: 'vertical'
+
+                    MDToolbar:
+                        title: tr._('CubeSolver') #app.title
+                        elevation: 10
+                        left_action_items: [['menu', lambda x: nav_drawer.set_state("open")]]
+                        right_action_items: [["star-outline", lambda x: app.on_star_click()]]
+                        md_bg_color: 0, 0, 0, 1
+
+                    MDTabs:
+                        id: tabs
+                        title: tr._('CubeSolver')
+                        on_tab_switch: app.on_tab_switch(*args)
+                        height: "48dp"
+                        tab_indicator_anim: False
+                        background_color: 0.1, 0.1, 0.1, 1
+
+                        Tab:
+                            id: tab1
+                            name: 'tab1'
+                            text: f"[size=20][font={fonts[-1]['fn_regular']}]{md_icons['account']}[/size][/font] "+tr._('Account')
+
+                            BoxLayout:
+                                orientation: 'vertical'
+                                padding: "10dp"
+                                BoxLayout:
+                                    orientation: 'horizontal'
+
+                                    MDIconButton:
+                                        icon: "account-arrow-right"
+
+                                    MDTextField:
+                                        id: loan
+                                        name: 'Username'
+                                        hint_text: tr._('Username')
+                                        color_mode: 'custom'
+                                        line_color_focus: 0,0,0,1
+                                        text_color: 0,0,0,1
+                                        current_hint_text_color: 0,0,0,1
+                                        input_filter: 'str'
+                                        helper_text_mode: "on_focus"
+
+                                BoxLayout:
+                                    orientation: 'horizontal'
+
+                                    MDIconButton:
+                                        icon: "lock"
+
+                                    MDTextField:
+                                        id: loan
+                                        name: 'Password'
+                                        hint_text: tr._('Password')
+                                        color_mode: 'custom'
+                                        line_color_focus: 0,0,0,1
+                                        text_color: 0,0,0,1
+                                        current_hint_text_color: 0,0,0,1
+                                        input_filter: 'str'
+                                        helper_text_mode: "on_focus"
+
+
+                                BoxLayout:
+                                    orientation: 'horizontal'
+
+                                    MDIconButton:
+                                        icon: "lock"
+
+                                    MDTextField:
+                                        id: loan
+                                        name: 'Confirm password'
+                                        hint_text: tr._('Confirm password')
+                                        color_mode: 'custom'
+                                        line_color_focus: 0,0,0,1
+                                        text_color: 0,0,0,1
+                                        current_hint_text_color: 0,0,0,1
+                                        input_filter: 'str'
+                                        helper_text_mode: "on_focus"
+
+                                BoxLayout:
+                                    orientation: 'horizontal'
+
+                                    MDIconButton:
+                                        icon: "email"
+
+                                    MDTextField:
+                                        id: loan
+                                        name: 'Email'
+                                        hint_text: tr._('Email')
+                                        color_mode: 'custom'
+                                        line_color_focus: 0,0,0,1
+                                        text_color: 0,0,0,1
+                                        current_hint_text_color: 0,0,0,1
+                                        input_filter: 'str'
+                                        helper_text_mode: "on_focus"
+
+
+
+                        Tab:
+                            id: tab2
+                            name: 'tab2'
+                            text: f"[size=20][font={fonts[-1]['fn_regular']}]{md_icons['table-large']}[/size][/font] "+tr._('Leaderboard')
+
+                            ScrollView:
+                                BoxLayout:
+                                    orientation: 'vertical'
+                                    id: calc_data_table
+
+                            FloatLayout:
+                                MDFloatingActionButton:
+                                    icon: "email-outline"
+                                    pos: 20, 20
+                                    text_color: [1,1,1,1]
+                                    on_release: app.show_confirmation_dialog()
+
+                        Tab:
+                            id: tab3
+                            name: 'tab3'
+                            text: f"[size=20][font={fonts[-1]['fn_regular']}]{md_icons['chart-areaspline']}[/size][/font] "+tr._('Graph')
+
+                            BoxLayout:
+                                orientation: 'vertical'
+                                padding: "10dp"
+
+
+                                BoxLayout:
+                                    orientation: 'vertical'
+                                    padding: "10dp"
+                                    size_hint_x: 1
+                                    size_hint_y: None
+                                    height: 50
+
+                                    canvas:
+                                        Color:
+                                            rgba: 0.2, 0.2, 0.2, 0.1
+                                        Rectangle:
+                                            size: self.size
+                                            pos: self.pos
+
+                                    MDLabel:
+                                        text: tr._('Build Statistics')
+                                        halign: "center"
+                                        font_style: "H5"
+                                        height: "48dp"
+
+                                BoxLayout:
+                                    orientation: 'vertical'
+                                    padding: "10dp"
+                                    id: graph
+
+                                    canvas:
+                                        Color:
+                                            rgba: 1, 1, 1, 1
+                                        Rectangle:
+                                            size: self.size
+                                            pos: self.pos
+
+                                BoxLayout:
+                                    orientation: 'horizontal'
+                                    padding: "10dp"
+                                    size_hint_x: 1
+                                    size_hint_y: None
+                                    height: 50
+
+                                    MDIcon:
+                                        icon: "checkbox-blank"
+                                        halign: "right"
+                                        color: 1, 0, 0, 1
+
+                                    MDLabel:
+                                        text: tr._('Time')
+                                        halign: "left"
+                                        font_style: "H6"
+                                        height: "48dp"
+
+                        Tab:
+                            id: tab4
+                            name: 'tab4'
+                            text: f"[size=20][font={fonts[-1]['fn_regular']}]{md_icons['book']}[/size][/font] "+tr._('Tutorial')
+
+                            BoxLayout:
+                                orientation: 'vertical'
+                                padding: "0dp"
+
+
+                                BoxLayout:
+                                    orientation: 'vertical'
+                                    padding: "0dp"
+                                    size_hint_x: 1
+                                    size_hint_y: None
+                                    height: 50
+
+
+                                    MDLabel:
+                                        text: tr._('Learning a Rubiks cube')
+                                        halign: "center"
+
+                                        font_style: "H5"
+                                        height: "48dp"
+
+                                BoxLayout:
+                                    orientation: 'vertical'
+                                    padding: "0dp"
+                                    id: chart
+
+
+                                    MDLabel:
+                                        text: tr._('he classic Rubiks Cube (3x3x3) was invented in 1974 by a Hungarian professor named Ern Rubik. He originally called it the "Magic Cube" however in 1980 it was renamed after its creator and is known since as the "Rubiks Cube".During the 1980s the Rubiks Cube became a sensation and by the mid 80s 20% of the worlds population at the time had played with it - Thats 1 in every 5 people on earth! Until today more than 350 million cubes have been sold and it is considered to be the worlds best selling toy of all time.The Rubiks Cube has over 43 quintillion possible permutations, thats 43,252,003,274,489,856,000 to be exact. This number is so high it even excceeds the number of seconds passed since the Big Bang!Despite this fact, over the years a number of algorithms for solving the Rubiks Cube were published. Some of them are more straightforward and some are more complicated but result in faster solves. The current world record for solving the Rubiks Cube is 3.47 seconds, it was set by Yusheng Du at the Wuhu Open 2018 competition.')
+                                        halign: "center"
+                                        valign: "top"
+
+                                        height: "12dp"
+
+
+
+
+                        Tab:
+                            id: tab5
+                            name: 'tab5'
+                            text: f"[size=20][font={fonts[-1]['fn_regular']}]{md_icons['book-open-variant']}[/size][/font] "+tr._('Solve')
+
+
+        MDNavigationDrawer:
+            id: nav_drawer
+
+            ContentNavigationDrawer:
+                id: content_drawer
+
+<ContentDialogSend>
+    orientation: "vertical"
+    spacing: "12dp"
+    size_hint_y: None
+    height: "120dp"
+
+    MDTextField:
+        hint_text: tr._('City')
+
+    MDTextField:
+        hint_text: tr._('Street')
