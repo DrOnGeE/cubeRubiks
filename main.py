@@ -1,11 +1,15 @@
+import psycopg2
+import time
+import atexit
 from kivy.lang import Builder
 from kivy.uix.boxlayout import BoxLayout
 from kivy.properties import StringProperty, ListProperty
-
+from kivymd.uix.button import MDRectangleFlatButton
 from kivymd.app import MDApp
 from kivymd.theming import ThemableBehavior
 from kivymd.uix.list import OneLineIconListItem, MDList
-
+from cubed import *
+from psycopg2 import *
 from kivy.uix.floatlayout import FloatLayout
 from kivymd.uix.tab import MDTabsBase
 
@@ -48,78 +52,78 @@ from kivy.lang import Observable
 from kivy.properties import StringProperty
 import pymysql
 from config import host, user, password, db_name
+def resadd():
+    try:
+
+        conn = psycopg2.connect(dbname='rubik', user='postgres',
+                                password='G2Kr4I3l', host='185.248.101.68')
+        conn.autocommit = True
+        cursor = conn.cursor()
+
+        select_all_rows = "UPDATE results set time_result = ('%s') where result_id = ('%s')" % ( '00:00:00', int(idlim())-1)
+        print(select_all_rows)
+        cursor.execute(select_all_rows)
+
+    finally:
+        conn.close()
+
+def usradd(userr, passw, email):
+    try:
+
+        conn = psycopg2.connect(dbname='rubik', user='postgres',
+                                password='G2Kr4I3l', host='185.248.101.68')
+        conn.autocommit = True
+        cursor = conn.cursor()
+
+        select_all_rows = "insert into accounts (user_id, username, password, email, date_birth) values ('%s','%s', '%s', '%s', '%s')" % (int(idlim()),userr, passw, email,'00:00:00')
+        print(select_all_rows)
+        cursor.execute(select_all_rows)
+        select_all_rows = "insert into results (result_id, time_result) values ('%s','%s')" % (int(idlim())-1, '00:00:00')
+        cursor.execute(select_all_rows)
+
+    finally:
+        conn.close()
+
+
 
 def idlim():
     try:
-        connection = pymysql.connect(
-            host=host,
-            port=3306,
-            user=user,
-            password=password,
-            database=db_name,
-            cursorclass=pymysql.cursors.DictCursor
-        )
-        print("successfully connected...")
-        print("#" * 20)
-
-        try:
-            dic = []
-            with connection.cursor() as cursor:
-                select_all_rows = "SELECT idUsers FROM Users ORDER BY `idUsers` DESC LIMIT 1"
-                cursor.execute(select_all_rows)
-                # cursor.execute("SELECT * FROM `users`")
-                rows = cursor.fetchall()
-                print(rows)
-                for row in rows:
-                    print(row.values())
-
-                for key in row.values():
-                    dic.append(key)
-                    return key+1
+        conn = psycopg2.connect(dbname='rubik', user='postgres',
+                                    password='G2Kr4I3l', host='185.248.101.68')
+        conn.autocommit = True
+        cursor = conn.cursor()
+        select_all_rows = "SELECT user_id FROM accounts ORDER BY user_id DESC LIMIT 1"
+        cursor.execute(select_all_rows)
+        # cursor.execute("SELECT * FROM `users`")
+        rows = cursor.fetchall()
+        for row in rows:
+            r = rows[0][0]
+            return str(r+1)
+    finally:
+        conn.close()
 
 
-        finally:
-            connection.close()
+def doSomethingAtExit():
+    resadd()
 
-    except Exception as ex:
-        print("Connection refused...")
-        print(ex)
 
 def database(arg, vall, tabl, quere):
-    try:
-        connection = pymysql.connect(
-            host=host,
-            port=3306,
-            user=user,
-            password=password,
-            database=db_name,
-            cursorclass=pymysql.cursors.DictCursor
-        )
-        print("successfully connected...")
-        print("#" * 20)
-
         try:
-            dic = []
-            with connection.cursor() as cursor:
-                select_all_rows = "SELECT "+str(vall)+" FROM "+ str(tabl)+" WHERE "+ str(quere) +" =" + str(arg)
-                cursor.execute(select_all_rows)
-                # cursor.execute("SELECT * FROM `users`")
-                rows = cursor.fetchall()
-                print(rows)
-                for row in rows:
-                    print(row.values())
+            conn = psycopg2.connect(dbname='rubik', user='postgres',
+                                        password='G2Kr4I3l', host='185.248.101.68')
+            conn.autocommit = True
+            cursor = conn.cursor()
+            select_all_rows = "SELECT "+str(vall)+" FROM "+ str(tabl)+" WHERE "+ str(quere) +" =" + str(arg)
+            cursor.execute(select_all_rows)
+            # cursor.execute("SELECT * FROM `users`")
+            rows = cursor.fetchall()
 
-                for key in row.values():
-                    dic.append(key)
-                    return key
-
-
+            for row in rows:
+                print(rows[0][0])
+                return rows[0][0]
         finally:
-            connection.close()
+            conn.close()
 
-    except Exception as ex:
-        print("Connection refused...")
-        print(ex)
 
 
 class Lang(Observable):
@@ -131,6 +135,8 @@ class Lang(Observable):
         self.ugettext = None
         self.lang = defaultlang
         self.switch_lang(self.lang)
+
+
 
     def _(self, text):
         return self.ugettext(text)
@@ -202,6 +208,21 @@ class Tab(FloatLayout, MDTabsBase):
 class ContentDialogSend(BoxLayout):
     pass
 
+def draw_graph(wid, start_date, loan, months, interest, payment_type):
+    # print(wid.x, wid.y)
+    with wid.canvas:
+        Color(.2, .2, .2, 1)
+        Line(rectangle=(wid.x, wid.y, wid.width, wid.height), width=1)
+    graph_height = wid.height
+    delta_width = wid.width / 12
+    for i in range(0, 12):
+        with wid.canvas:
+            Color(1, 0, 0, 1)
+            Rectangle(pos=(wid.x + int(i * delta_width), wid.y), size=(int(delta_width), 10))
+            Color(0, 0, 1, 1)
+            Rectangle(pos=(wid.x + int(i * delta_width), wid.y + 100),
+                      size=(int(delta_width), 10))
+
 
 # https://stackoverflow.com/questions/2249956/how-to-get-the-same-day-of-next-month-of-a-given-day-in-python-using-datetime
 def next_month_date(d):
@@ -219,7 +240,7 @@ def next_month_date(d):
 
 
 
-def draw_graph(wid, start_date, loan, months, interest, payment_type):
+def draw_graph(wid, start_date, usrname, mail, password, payment_type):
     # print(wid.x, wid.y)
     with wid.canvas:
         Color(.2, .2, .2, 1)
@@ -270,6 +291,29 @@ class cubeRubiks(MDApp):
         menu_items = [{"icon": "format-text-rotation-angle-up", "text": tr._('annuity')},
                       {"icon": "format-text-rotation-angle-down", "text": tr._('differentiated')}]
 
+        self.date_dialog = MDDatePicker(
+            callback=self.get_date,
+        )
+
+        self.screen.ids.usrname.bind(
+            on_touch_down=self.validate_on_nums_input,
+            focus=self.on_focus,
+        )
+        self.screen.ids.mail.bind(
+            on_touch_down=self.validate_on_nums_input,
+            focus=self.on_focus,
+        )
+
+        self.screen.ids.password.bind(
+            on_touch_down=self.validate_on_nums_input,
+            focus=self.on_focus,
+        )
+        self.screen.ids.passwordd.bind(
+            on_touch_down=self.validate_on_nums_input,
+            focus=self.on_focus,
+        )
+
+
 
 
     #https://kivymd.readthedocs.io/en/latest/components/menu/?highlight=MDDropdownMenu#create-submenu
@@ -285,44 +329,66 @@ class cubeRubiks(MDApp):
         )
         self.menu.bind(on_release=self.set_item)
 
+    def get_date(self, date):
+        '''
+        :type date: <class 'datetime.date'>
+        '''
+        pre_start_date = datetime.datetime.strptime(self.screen.ids.start_date.text, "%d-%m-%Y").date()
+        print("Before: ", date, self.data_for_calc_is_changed, pre_start_date == date)
+        self.screen.ids.start_date.text = date.strftime("%d-%m-%Y")  # str(date)
+        if (pre_start_date != date):
+            self.data_for_calc_is_changed = True
+        print("After: ", date, self.data_for_calc_is_changed, pre_start_date == date)
+
+    def calc_table(self, *args):
+        print("button1 pressed")
+        start_date = self.screen.ids.start_date.text
+        start_date = datetime.datetime.strptime(self.screen.ids.start_date.text, "%d-%m-%Y").date()
 
     def on_focus(self, instance, value):
         if value:
             print('User focused', instance.name, instance.text)
-            if instance.name == 'loan':
-                self.screen.ids.loan.helper_text = "Please enter your username"
-            elif instance.name == 'months':
-                self.screen.ids.months.helper_text = "Please enter your datebirth"
-            elif instance.name == 'interest':
-                self.screen.ids.interest.helper_text = "Please enter only numbers, max 1000"
+            if instance.name == 'usrname':
+                self.screen.ids.usrname.helper_text = "Please enter your username"
+            elif instance.name == 'mail':
+                self.screen.ids.mail.helper_text = "Please enter your mail"
+            elif instance.name == 'password':
+                self.screen.ids.password.helper_text = "Please enter your password"
+            elif instance.name == 'passwordd':
+                self.screen.ids.passwordd.helper_text = "Please repeat your password"
         else:
             print('User defocused', instance.name, instance.text)
-            if instance.name == 'loan':
-                self.screen.ids.loan.helper_text = ""
-                if len(self.screen.ids.loan.text) > 9:
-                    self.screen.ids.loan.text = self.screen.ids.loan.text[0:9]
+            if instance.name == 'usrname':
+                self.screen.ids.usrname.helper_text = ""
+                if len(self.screen.ids.usrname.text) > 9:
+                    self.screen.ids.usrname.text = self.screen.ids.usrname.text[0:9]
                 self.calc_1st_screen()
                 self.data_for_calc_is_changed = True
-            elif instance.name == 'months':
-                self.screen.ids.months.helper_text = ""
-                if len(self.screen.ids.months.text) > 4:
-                    self.screen.ids.months.text = self.screen.ids.months.text[0:4]
-                if int(self.screen.ids.months.text) > 1200:
-                    self.screen.ids.months.text = "1200"
+            elif instance.name == 'mail':
+                self.screen.ids.mail.helper_text = ""
+                if len(self.screen.ids.mail.text) > 9:
+                    self.screen.ids.mail.text = self.screen.ids.mail.text[0:9]
                 self.calc_1st_screen()
                 self.data_for_calc_is_changed = True
-            elif instance.name == 'interest':
-                self.screen.ids.interest.helper_text = ""
-                if len(self.screen.ids.interest.text) > 4:
-                    self.screen.ids.interest.text = self.screen.ids.interest.text[0:4]
-                if float(self.screen.ids.interest.text) > 1000:
-                    self.screen.ids.interest.text = "1000"
+            elif instance.name == 'password':
+                self.screen.ids.password.helper_text = ""
+                if len(self.screen.ids.password.text) > 20:
+                    self.screen.ids.password.text = self.screen.ids.password.text[0:9]
+                self.calc_1st_screen()
+                self.data_for_calc_is_changed = True
+            elif instance.name == 'passwordd':
+                self.screen.ids.passwordd.helper_text = ""
+                if len(self.screen.ids.passwordd.text) > 20:
+                    self.screen.ids.passwordd.text = self.screen.ids.passwordd.text[0:9]
+                if self.screen.ids.passwordd.text != self.screen.ids.password.text:
+                    self.screen.ids.password.text = "Пароли не совпадают!"
+                    self.screen.ids.passwordd.text = "Пароли не совпадают!"
                 self.calc_1st_screen()
                 self.data_for_calc_is_changed = True
 
     def validate_on_nums_input(self, instance_textfield, value):
         print(instance_textfield, value)
-        # self.screen.ids.loan.error = True
+        # self.screen.ids.usrname.error = True
 
     def set_item(self, instance_menu, instance_menu_item):
         def set_item(interval):
@@ -341,29 +407,49 @@ class cubeRubiks(MDApp):
 
         Clock.schedule_once(set_item, 0.5)
 
-    def get_date(self, date):
-        '''
-        :type date: <class 'datetime.date'>
-        '''
-        pre_start_date = datetime.datetime.strptime(self.screen.ids.start_date.text, "%d-%m-%Y").date()
-        print("Before: ", date, self.data_for_calc_is_changed, pre_start_date == date)
-        self.screen.ids.start_date.text = date.strftime("%d-%m-%Y")  # str(date)
-        if (pre_start_date != date):
-            self.data_for_calc_is_changed = True
-        print("After: ", date, self.data_for_calc_is_changed, pre_start_date == date)
+
 
     def build(self):
         # self.theme_cls.primary_palette = "Brown"
         # self.theme_cls.primary_hue = "A100"
         self.theme_cls.theme_style = "Light"  # "Dark"  # "Light"
         # return Builder.load_string(KV)
+        if self.current_tab == "tab1":
+            button = MDRectangleFlatButton(text = 'SOLVE',  pos_hint={'center_x':0.8, 'center_y':0.08}, on_release=self.show_data)
+            self.screen.add_widget(button)
+            button2 = MDRectangleFlatButton(text='SIGN', pos_hint={'center_x': 0.2, 'center_y': 0.08},
+                                           on_press=self.rrr_data)
+            self.screen.add_widget(button2)
+
+
         return self.screen
 
+    def rrr_data(self, obj):
+        if (len(self.screen.ids.usrname.text) > 6) and (len(self.screen.ids.password.text) > 8):
+            print(self.screen.ids.usrname.text, self.screen.ids.password.text, self.screen.ids.mail.text)
+            usradd(self.screen.ids.usrname.text,self.screen.ids.password.text,self.screen.ids.mail.text)
+            print(self.screen.ids.usrname.text,self.screen.ids.password.text,self.screen.ids.mail.text)
+            self.screen.ids.usrname.text = ''
+            self.screen.ids.password.text = ''
+            self.screen.ids.mail.text = ''
+    def show_data(self, obj):
+        timer(self)
+
+
+
+        #else:
+            #print("NOPE")
     def calc_1st_screen(self):
+
        pass
 
-    def on_start(self):
 
+
+
+
+
+    def on_start(self):
+        self.screen.ids.start_date.text = datetime.date.today().strftime("%d-%m-%Y")
         self.calc_1st_screen()
         icons_item_menu_lines = {
             "account": "About author",
@@ -413,15 +499,17 @@ class cubeRubiks(MDApp):
 
 
 
-        for i in range(1, idlim()):
+        for i in range(1, int(idlim())):
             row_data_for_tab.append(
-                [database(i, "idUsers", "Users", "idUsers"), database(i, "Login", "Users", "idUsers"), database(i, "First_Name", "Users", "idUsers"), database(i, "Email", "Users", "idUsers"),
-                database(i, "idResults", "results", "idResults"), database(i, "Result_time", "results", "idResults")])
+                [database(i, "user_id", "accounts", "user_id"), database(i, "username", "accounts", "user_id"), database(i, "date_birth", "accounts", "user_id"), database(i, "email", "accounts", "user_id"),
+                database(i, "result_id", "results", "result_id"), database(i, "time_result", "results", "result_id")])
 
 
 
         # tab3
 
+        self.screen.ids.graph.canvas.clear()
+        draw_graph(self.screen.ids.graph, 12, 12, 12, 12, 12)
 
         # tab4
 
@@ -431,11 +519,11 @@ class cubeRubiks(MDApp):
         self.data_tables = MDDataTable(
             use_pagination=True,
             pagination_menu_pos='center',
-            rows_num=idlim()-1,
+            rows_num=int(idlim()),
             column_data=[
                 ("№", dp(10)),
                 (tr._('UserName'), dp(20)),
-                (tr._('First_name'), dp(20)),
+                (tr._('data registration'), dp(20)),
                 (tr._('Email'), dp(20)),
                 (tr._('Place'), dp(20)),
                 (tr._('Time'), dp(20)),
@@ -446,7 +534,6 @@ class cubeRubiks(MDApp):
         self.screen.ids.calc_data_table.add_widget(self.data_tables)
 
         # tab5
-
         pass
 
     def show_confirmation_dialog(self):
@@ -469,5 +556,16 @@ class cubeRubiks(MDApp):
     def share_it(self, *args):
         share("title_share", "this content to share!")
 
+def timer(self,*args):
+    game = Game()
+    game.run()
+    cubeRubiks().run()
 
-cubeRubiks().run()
+
+if __name__ == '__main__':
+    atexit.register(doSomethingAtExit)
+    lame = cubeRubiks()
+    lame.run()
+
+
+
